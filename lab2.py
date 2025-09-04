@@ -15,15 +15,15 @@ st.write(
 )
 
 
-    uploaded_file = st.file_uploader("Upload a document (.txt or .md)", type=("txt", "md"))
+uploaded_file = st.file_uploader("Upload a document (.txt or .md)", type=("txt", "md"))
 
-    question = st.text_area(
+question = st.text_area(
         "Now ask a question about the document!",
         placeholder="Can you give me a short summary?",
         disabled=not uploaded_file,
     )
 
-    if uploaded_file and question:
+if uploaded_file and question:
         document = uploaded_file.read().decode(errors="ignore")
         messages = [{
             "role": "user",
