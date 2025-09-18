@@ -1,10 +1,15 @@
 import streamlit as st
 
-# Define pages (put Lab 2 first so it’s the default selection)
+# App meta
+st.set_page_config(page_title="Labs Manager", page_icon="🧪", layout="wide")
+
+# Order matters: first page is the default
 pages = [
-    st.Page("lab2.py", title="Lab 2"),
-    st.Page("lab1.py", title="Lab 1"),
+    st.Page("lab4.py", title="Lab 4 — Vector DB", icon="🧪"),
+    st.Page("lab3.py", title="Lab 3 — Chatbot", icon="💬"),
+    st.Page("lab2.py", title="Lab 2 — Summarization", icon="🧾"),
+    st.Page("lab1.py", title="Lab 1 — Document QA", icon="📄"),
 ]
 
-pg = st.navigation(pages)   # sidebar by default; use position="top" if you prefer a top nav
-pg.run()
+nav = st.navigation(pages)   # sidebar by default; use position="top" for a top nav
+nav.run()

@@ -1,39 +1,53 @@
 import streamlit as st
 from openai import OpenAI
 
+# --- Keys via Streamlit Secrets ONLY ---
+OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
+client = OpenAI(api_key=OPENAI_API_KEY)
 
-# Load API key from Streamlit secrets
-openai_api_key = st.secrets["OPENAI_API_KEY"]
-client = OpenAI(api_key=openai_api_key)
+st.title("🧾 Lab 2C: Summarization (4o / 4o-mini)")
 
-
-# Updated title so you can tell it’s Lab 2
-st.title("📄 Document question answering — Lab 2")
-
-st.write(
-    "This is the Lab 2 page."
-)
-
-
+# Upload input
 uploaded_file = st.file_uploader("Upload a document (.txt or .md)", type=("txt", "md"))
 
-question = st.text_area(
-        "Now ask a question about the document!",
-        placeholder="Can you give me a short summary?",
-        disabled=not uploaded_file,
+# Sidebar controls
+with st.sidebar:
+    st.header("Summary options")
+    summary_style = st.radio(
+        "Choose summary type",
+        ["100 words", "2 paragraphs", "5 bullet points"],
+        index=0
     )
+    use_advanced = st.checkbox("Use Advanced Model (4o)", value=False)
+    model = "gpt-4o" if use_advanced else "gpt-4o-mini"
 
-if uploaded_file and question:
-        document = uploaded_file.read().decode(errors="ignore")
-        messages = [{
-            "role": "user",
-            "content": f"Here's a document:\n\n{document}\n\n---\n\n{question}",
-        }]
+def build_instruction(style: str) -> str:
+    if style == "100 words":
+        return "Summarize the document in ~100 words. Be concise and faithful."
+    if style == "2 paragraphs":
+        return "Summarize the document in exactly two connected paragraphs; paragraph 2 should build on paragraph 1."
+    return "Summarize the document as exactly 5 concise bullet points capturing distinct key ideas."
 
-        stream = client.chat.completions.create(
-            model="gpt-5-chat-latest",
-            messages=messages,
-            stream=True,
-        )
+def summarize(document: str, style: str, model_name: str):
+    instruction = build_instruction(style)
+    messages = [
+        {"role": "system", "content": "You are a careful summarizer. Preserve meaning and avoid fabrications."},
+        {"role": "user", "content": f"{instruction}\n\n---\nDOCUMENT:\n{document}\n---"}
+    ]
+    stream = client.chat.completions.create(
+        model=model_name,
+        messages=messages,
+        stream=True,
+        temperature=0.2,
+    )
+    return stream
 
-        st.write_stream(stream)
+# Auto-run once a file is selected
+if uploaded_file:
+    text = uploaded_file.read().decode(errors="ignore")
+    st.subheader(f"Model: {model}")
+    st.caption(f"Summary type: {summary_style}")
+    with st.spinner("Generating summary..."):
+        st.write_stream(summarize(text, summary_style, model))
+else:
+    st.info("Upload a .txt or .md file to see the summary.", icon="📄")
