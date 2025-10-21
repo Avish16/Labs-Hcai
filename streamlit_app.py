@@ -5,6 +5,7 @@ st.set_page_config(page_title="Labs Manager", page_icon="🧪", layout="wide")
 
 # Order matters: first page is the default
 pages = [
+    st.Page("lab5.py", title="Lab 5 — What to Wear Bot", icon="🌤️"),  # NEW
     st.Page("lab4.py", title="Lab 4 — Vector DB", icon="🧪"),
     st.Page("lab3.py", title="Lab 3 — Chatbot", icon="💬"),
     st.Page("lab2.py", title="Lab 2 — Summarization", icon="🧾"),

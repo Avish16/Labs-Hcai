@@ -49,7 +49,6 @@ if "Lab4_vectorDB" not in st.session_state:
 else:
     collection = st.session_state.Lab4_vectorDB
 
-# --- Conversation state ---
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 
@@ -58,19 +57,17 @@ for role, msg in st.session_state.chat_history:
     with st.chat_message(role):
         st.markdown(msg)
 
-# --- Chat input ---
 if user_query := st.chat_input("Ask about the course PDFs…"):
     # 1. show user message
     st.session_state.chat_history.append(("user", user_query))
     with st.chat_message("user"):
         st.markdown(user_query)
 
-    # 2. retrieve relevant docs
     results = collection.query(query_texts=[user_query], n_results=3)
     retrieved_chunks = [doc for doc in results["documents"][0]]
     context_text = "\n\n---\n\n".join(retrieved_chunks)
 
-    # 3. build prompt
+    
     prompt = (
         "You are a helpful course information assistant.\n"
         "If relevant, use the following retrieved context to answer clearly.\n"
@@ -79,7 +76,7 @@ if user_query := st.chat_input("Ask about the course PDFs…"):
         f"User question: {user_query}"
     )
 
-    # 4. call OpenAI chat completion
+
     client = st.session_state.openai_client
     response = client.chat.completions.create(
         model="gpt-4o-mini",  # or gpt-3.5-turbo
@@ -89,7 +86,7 @@ if user_query := st.chat_input("Ask about the course PDFs…"):
     )
     answer = response.choices[0].message.content
 
-    # 5. show assistant reply
+   
     st.session_state.chat_history.append(("assistant", answer))
     with st.chat_message("assistant"):
         st.markdown(answer)
